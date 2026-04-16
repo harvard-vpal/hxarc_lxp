@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
     type=click.Path(exists=True, file_okay=False, dir_okay=True, allow_dash=False),
 )
 @click.option(
-    "--parjson",
+    "--parjson", # Pick a JSON file to provide arguments to the script.
     type=click.Path(exists=True, file_okay=True, dir_okay=False, allow_dash=False),
     help=(
         "filepath to json with input params,"
@@ -69,22 +69,28 @@ def cli(
 
     # click.Path() already checked that this is a readable dir
     ipath = Path(input_path).resolve()  # absolute path
+    # A proper LXP JSON export has the following files and folders:
+    check_for = ["activities.json", "elements.json", "manifest.json", "repository.json", "repository/"]
+
+    for item in check_for:
+        if not (ipath / item).exists():
+            logger.error(f"Expected file or folder {item} not found in {ipath} -- exiting.")
+            sys.exit(1)  # exit with error code if expected files/folders are missing
     for child in ipath.iterdir():
-        if child.is_file() and child.name == "course.xml":
-            logger.info(f"found course folder({child.parent})")
+        logger.info(f"found course folder({child.parent})")
 
-            # perhaps some validation before using the value cause it can be None
-            # but if not None, it's a readable file
-            contents = get_contents(parjson) if parjson else {}
+        # perhaps some validation before using the value cause it can be None
+        # but if not None, it's a readable file
+        contents = get_contents(parjson) if parjson else {}
 
-            result = process_dir(child.parent, **contents)
+        result = process_dir(str(child.parent), contents)
 
-            # can also pass params as dir, depending on how you func process_file wants
-            # to handle params
-            # result = process_file(child.parent, contents)
+        # can also pass params as dir, depending on how you func process_file wants
+        # to handle params
+        # result = process_file(child.parent, contents)
 
-            logger.info(f"done! result is {result}")
-            return 0
+        logger.info(f"done! result is {result}")
+        return 0
 
     logger.error(f"No course.xml file found in {ipath} -- NOTHING done")
     return 1  # return non-zero for errors that might be displayed to hxarc end user
