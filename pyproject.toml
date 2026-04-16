@@ -1,0 +1,61 @@
+
+[build-system]
+requires = ["setuptools>=61.0.0"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "hxarc_lxp"
+dynamic = ["version"]
+description = "Archiving script for the LXP"
+license = {file = "LICENSE"}
+authors = [
+    {name = "fredericks", email = "colin_fredericks@harvard.edu"}
+]
+readme = "README.md"
+keywords = [
+    "vpal",
+    "hxarc_lxp",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "click",
+]
+requires-python = ">=3.12"
+
+[project.scripts]
+hxarc_lxp = "hxarc_lxp.cli:cli"
+
+[project.urls]
+Homepage = "https://github.com/harvardx/hxarc_lxp"
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+]
+lint = [
+    "ruff",
+]
+
+
+[tool.setuptools.dynamic]
+version = {attr = "hxarc_lxp.__version__"}
+
+
+[tool.pytest.ini_options]
+addopts = [
+    "-vvv",
+    "--import-mode=importlib",
+]
+testpaths = [
+    "tests",
+]
+pythonpath = [
+    "tests",
+]

@@ -1,0 +1,110 @@
+# -*- coding: utf-8 -*-
+
+import contextlib
+import csv
+import json
+import logging
+from pathlib import Path
+import sys
+from typing import Any
+from urllib.parse import urlparse
+
+
+logger = logging.getLogger(__name__)
+
+
+def get_contents(filepath: str) -> dict | list | None:
+    fp = Path(filepath)
+    if not fp.exists() or not fp.is_file():
+        logger.error(f"input({filepath} not file or not file.")
+        return None
+
+    if fp.suffix == ".json":
+        with fp.open(mode="r", encoding="ISO-8859-1") as fh:
+            contents = json.load(fh)
+        return contents
+
+    elif fp.suffix == ".csv":
+        incsv = []
+        with fp.open(mode="r", encoding="utf-8-sig") as fh:
+            reader = csv.DictReader(fh, dialect="excel")
+            for row in reader:
+                incsv.append(row)
+        return incsv
+
+    elif fp.suffix == ".tsv":
+        intsv = []
+        with fp.open(mode="r", encoding="utf-8-sig") as fh:
+            reader = csv.DictReader(fh, dialect="excel-tab")
+            for row in reader:
+                intsv.append(row)
+        return intsv
+
+    elif fp.suffix == ".srt":
+        with fp.open(mode="r", encoding="utf-8-sig") as fh:
+            rows = fh.readlines()
+        return rows
+
+    else:
+        logger.error(f"can't read file format({fp.suffix})")
+        return None
+
+
+def save_file(
+    data: dict[str, Any],
+    filename: str,
+    folder: str,
+    overwrite: bool = True,
+) -> bool:
+    """saves dict as filename ext dictates: json or csv."""
+    ext = Path(filename).suffix
+    if ext not in (".json", ".csv"):
+        logger.error(f"unknown format({ext}); accepts ext: json or csv")
+        return False
+
+    filepath = Path(folder) / filename
+    if filepath.exists():
+        if not overwrite:
+            logger.error(f"path({filepath}) exists, not overwriting")
+            return False
+        else:
+            logger.warning(f"overwriting path({filepath})!!!!")
+
+    if ext == ".json":
+        filepath.write_text(json.dumps(data, indent=4))
+
+    elif ext == ".csv":
+        with filepath.open(mode="w", encoding="utf-8") as fp:
+            writer = csv.DictWriter(fp, fieldnames=data[0].keys())
+            writer.writeheader()
+            writer.writerows(data)
+
+    logger.info(f"done writing data to file({filepath}) as format({ext})")
+    return True
+
+
+def is_valid_url(url: str) -> bool:
+    try:
+        result = urlparse(url)
+        return all([result.scheme in ("http", "https"), result.netloc])
+    except ValueError:
+        return False
+
+
+# from http://stackoverflow.com/a/29824059
+# accepts stdin as filename "-"
+@contextlib.contextmanager
+def _smart_open(filename, mode="r"):
+    if filename == "-":
+        if mode is None or mode == "" or "r" in mode:
+            fhandle = sys.stdin
+        else:
+            fhandle = sys.stdout
+    else:
+        fhandle = open(filename, mode)
+
+    try:
+        yield fhandle
+    finally:
+        if filename != "-":
+            fhandle.close()
