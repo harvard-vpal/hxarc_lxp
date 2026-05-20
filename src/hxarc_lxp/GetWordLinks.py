@@ -1,10 +1,10 @@
-import sys
 import os
+import csv
+import sys
+import glob
 import zipfile
 import argparse
-import glob
 from bs4 import BeautifulSoup
-import csv
 
 
 instructions = """
@@ -26,6 +26,7 @@ Options:
 
 Last update: May 20th 2026
 """
+
 
 # Get the text that is the source for the hyperlink.
 # Not sure what this will do with image links.
@@ -210,7 +211,7 @@ def getWordLinks(args):
             else:
                 topfiles = []
                 dirpath = ""
-                for (dirpath, dirnames, files) in os.walk(name):
+                for dirpath, dirnames, files in os.walk(name):
                     topfiles.extend(files)
                     break
                 for eachfile in topfiles:

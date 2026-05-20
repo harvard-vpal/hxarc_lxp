@@ -139,6 +139,7 @@ def secToHMS(time: Union[float, int]) -> str:
     # Send back a string
     return str(hours) + ":" + str(minutes) + ":" + str(seconds)
 
+
 def describeLinkData(newlink: dict) -> dict:
     """Adds notes to links based on file type, like (image link) or (PDF file)."""
     image_types = [

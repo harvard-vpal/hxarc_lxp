@@ -1,13 +1,13 @@
-import sys
 import os
-import subprocess
-import argparse
-import logging
+import csv
+import sys
 import glob
 import pypdf
-from pypdf.generic import DictionaryObject
+import logging
+import argparse
+import subprocess
 from typing import cast
-import csv
+from pypdf.generic import DictionaryObject
 
 instructions = """
 Usage:
@@ -167,7 +167,7 @@ def getPDFLinks(args):
             else:
                 topfiles = []
                 dirpath = ""
-                for (dirpath, dirnames, files) in os.walk(name):
+                for dirpath, dirnames, files in os.walk(name):
                     topfiles.extend(files)
                     break
                 for eachfile in topfiles:
