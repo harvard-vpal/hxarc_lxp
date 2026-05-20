@@ -51,15 +51,15 @@ def get_contents(filepath: str) -> dict | list | None:
 
 
 def save_file(
-    data: dict[str, Any],
+    data: list[dict[str, Any]],
     filename: str,
     folder: str,
     overwrite: bool = True,
 ) -> bool:
-    """saves dict as filename ext dictates: json or csv."""
-    ext = Path(filename).suffix
-    if ext not in (".json", ".csv"):
-        logger.error(f"unknown format({ext}); accepts ext: json or csv")
+    """saves a list of dicts as filename extension dictates: json or csv."""
+    extension = Path(filename).suffix
+    if extension not in (".json", ".csv"):
+        logger.error(f"unknown format({extension}); accepts json or csv")
         return False
 
     filepath = Path(folder) / filename
@@ -70,16 +70,16 @@ def save_file(
         else:
             logger.warning(f"overwriting path({filepath})!!!!")
 
-    if ext == ".json":
+    if extension == ".json":
         filepath.write_text(json.dumps(data, indent=4))
 
-    elif ext == ".csv":
+    elif extension == ".csv":
         with filepath.open(mode="w", encoding="utf-8") as fp:
             writer = csv.DictWriter(fp, fieldnames=data[0].keys())
             writer.writeheader()
             writer.writerows(data)
 
-    logger.info(f"done writing data to file({filepath}) as format({ext})")
+    logger.info(f"done writing data to file({filepath}) as format({extension})")
     return True
 
 
