@@ -24,7 +24,7 @@ Options:
   -o  Set an output filename as the next argument.
   -l  Returns a Python list. Used when called by other scripts.
 
-Last update: March 23rd 2018
+Last update: April 3rd 2019
 """
 
 # Returns a dictionary of all the slides.
