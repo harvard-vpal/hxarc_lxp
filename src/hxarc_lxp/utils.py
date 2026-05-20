@@ -6,7 +6,7 @@ import json
 import logging
 from pathlib import Path
 import sys
-from typing import Any
+from typing import Any, Union
 from urllib.parse import urlparse
 
 
@@ -108,3 +108,64 @@ def _smart_open(filename, mode="r"):
     finally:
         if filename != "-":
             fhandle.close()
+
+
+def secToHMS(time: Union[float, int]) -> str:
+    """Converts from seconds to hh:mm:ss format"""
+    # Round it to an integer.
+    time = int(round(float(time), 0))
+
+    # Downconvert through hours.
+    seconds = int(time % 60)
+    time -= seconds
+    minutes = int((time / 60) % 60)
+    time -= minutes * 60
+    hours = int((time / 3600) % 24)
+
+    # Make sure we get enough zeroes.
+    if int(seconds) == 0:
+        seconds = "00"
+    elif int(seconds) < 10:
+        seconds = "0" + str(seconds)
+    if int(minutes) == 0:
+        minutes = "00"
+    elif int(minutes) < 10:
+        minutes = "0" + str(minutes)
+    if int(hours) == 0:
+        hours = "00"
+    if int(hours) < 10:
+        hours = "0" + str(hours)
+
+    # Send back a string
+    return str(hours) + ":" + str(minutes) + ":" + str(seconds)
+
+def describeLinkData(newlink: dict) -> dict:
+    """Adds notes to links based on file type, like (image link) or (PDF file)."""
+    image_types = [
+        ".png",
+        ".gif",
+        ".jpg",
+        ".jpeg",
+        ".svg",
+        ".tiff",
+        ".tif",
+        ".bmp",
+        ".jp2",
+        ".jif",
+        ".pict",
+        ".webp",
+    ]
+
+    if newlink["href"].endswith(tuple(image_types)):
+        newlink["text"] += " (image link)"
+    if newlink["href"].endswith(".pdf"):
+        newlink["text"] += " (PDF file)"
+    if newlink["href"].endswith(".ps"):
+        newlink["text"] += " (PostScript file)"
+    if newlink["href"].endswith(".zip"):
+        newlink["text"] += " (zip file)"
+    if newlink["href"].endswith(".tar.gz"):
+        newlink["text"] += " (tarred gzip file)"
+    if newlink["href"].endswith(".gz"):
+        newlink["text"] += " (gzip file)"
+    return newlink
