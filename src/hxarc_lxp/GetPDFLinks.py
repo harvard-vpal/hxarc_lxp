@@ -196,7 +196,7 @@ def getPDFLinks(args):
     else:
         outFilePath = os.path.join(os.path.dirname(file_names[0]), outFileName)
 
-    with open(outFilePath, "wb") as outputFile:
+    with open(outFilePath, mode="w", encoding="utf-8") as outputFile:
         fieldnames = ["filename", "page", "href"]
 
         writer = csv.DictWriter(
